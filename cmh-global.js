@@ -9,10 +9,17 @@
 
 //NOTES:
 // Work up some better commenting..
+// Convert normal functions to class based
 
 //adds jquery functionality to get the type of inputs in a form we are dealing with.
 $.fn.getType = function(){ return this[0].tagName == "INPUT" ? $(this[0]).attr("type").toLowerCase() : this[0].tagName.toLowerCase(); }
-
+//jqery extension. to create ":Contains" declaration similar to :selected, :checked, :not etc..
+(function ($) {
+  // custom css expression for a case-insensitive contains()
+  jQuery.expr[':'].Contains = function(a,i,m){
+      return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase())>=0;
+  };
+}(jQuery));
 function longMonth(theValue)
 {
 	var month=new Array();
@@ -90,7 +97,7 @@ function goContainerByID(elemID)
 	$('html, body').animate(
 	{
 		scrollTop: $('#'+elemID).offset().top
-	}, 500);
+	} 500);
 }
 //attempt to find the position or index rather of an item in a given array
 //and then return that index for use elsewhere.
@@ -158,6 +165,25 @@ function selectOptionByText(selectorName, txt2match) {
     .attr('selected',true);
 }
 //helpful prototypes for reverse compatibility
+if (!Array.prototype.remove)
+{
+	Array.prototype.remove = function()
+	{
+	    var what, a = arguments, L = a.length, ax;
+	    while(L && this.length){
+	        what= a[--L];
+	        while((ax = this.indexOf(what))!= -1){
+	            this.splice(ax, 1);
+	        }
+	    }
+	    return this;
+	}
+}
+if(!Array.isArray) {
+  Array.isArray = function (vArg) {
+    return Object.prototype.toString.call(vArg) === "[object Array]";
+  };
+}
 Array.range = function(start, end, step) {
     var range = [];
     var typeofStart = typeof start;
@@ -285,3 +311,75 @@ $.fn.clearForm = function() {
       this.selectedIndex = -1;
   });
 };
+///////////////////////converts charaters into hex example @ becomes %40
+function fixedEncodeURIComponent(str){return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A');}
+///////////////////////converts charaters from hex example %40 becomes @
+function decode(txt){return decodeURIComponent(txt.replace(/\+/g,  " "));}
+//String Replace standart string replace functionality (like php implementation)
+function str_replace(haystack, needle, replacement) {var temp = haystack.split(needle);return temp.join(replacement);}
+//needle may be a regular expression
+function str_replace_reg(haystack, needle, replacement) {var r = new RegExp(needle, 'g');return haystack.replace(r, replacement);}
+//String trim PHP equvilants
+function trim(str, chars){return ltrim(rtrim(str, chars), chars);}
+function ltrim(str, chars){chars = chars || "\\s";return str.replace(new RegExp("^[" + chars + "]+", "g"), "");}
+function rtrim(str, chars){chars = chars || "\\s";return str.replace(new RegExp("[" + chars + "]+$", "g"), "");}
+function secondsToTime(secs){var hours = Math.floor(secs / (60 * 60));var divisor_for_minutes = secs % (60 * 60);var minutes = Math.floor(divisor_for_minutes / 60);var divisor_for_seconds = divisor_for_minutes % 60;var seconds = Math.ceil(divisor_for_seconds);var obj = {"h"hours,"m"minutes,"s"seconds};return obj;}
+//COOOKIES!!
+function cookieGet(name){name = name + "=";var cookies = document.cookie.split(';');for (var i = 0; i < cookies.length; i++){var c = cookies[i];while (c.charAt(0) == ' ') {c = c.substring(1, c.length);}if (c.indexOf(name) === 0) {return c.substring(name.length, c.length);}}return null;}
+function cookieSet(name, value, path, days)
+{
+	var expires;
+	if(days)
+	{
+		var date = new Date();
+		date.setTime(date.getTime() + (3600000*24*days));
+		expires = "; expires=" + date.toGMTString();}
+	else
+	{
+		expires = "";
+	}
+	var path = "; path=" + path;
+	document.cookie = name + "=" + value + expires + path;
+}
+function cookieDelete(name){cookieSet(name, "", -1);}
+//bytes to size kb, mb, gb, tb..
+function bytesToSize(bytes, precision){var kilobyte = 1024;var megabyte = kilobyte * 1024;var gigabyte = megabyte * 1024;var terabyte = gigabyte * 1024;if((bytes >= 0)&&(bytes < kilobyte)){return bytes + ' B';}else if((bytes >= kilobyte)&&(bytes < megabyte)){return (bytes / kilobyte).toFixed(precision) + ' KB';}else if((bytes >= megabyte)&&(bytes < gigabyte)){return (bytes / megabyte).toFixed(precision) + ' MB';}else if((bytes >= gigabyte)&&(bytes < terabyte)){return (bytes / gigabyte).toFixed(precision) + ' GB';}else if(bytes >= terabyte) {return (bytes / terabyte).toFixed(precision) + ' TB';}else{return bytes + ' B';}}
+//sha1 encryption algorithm
+function sha1(msg){function rotate_left(n,s){var t4 = ( n<<s ) | (n>>>(32-s));return t4;};function lsb_hex(val) {var str="";var i;var vh;var vl;for( i=0; i<=6; i+=2 ) {vh = (val>>>(i*4+4))&0x0f;vl = (val>>>(i*4))&0x0f;str += vh.toString(16) + vl.toString(16);}return str;};function cvt_hex(val){var str="";var i;var v;for( i=7; i>=0; i-- ) {v = (val>>>(i*4))&0x0f;str += v.toString(16);}return str;};function Utf8Encode(string) {string = string.replace(/\r\n/g,"\n");var utftext = "";for (var n = 0; n < string.length; n++) {var c = string.charCodeAt(n);if (c < 128) {utftext += String.fromCharCode(c);}else if((c > 127) && (c < 2048)) {utftext += String.fromCharCode((c >> 6) | 192);utftext += String.fromCharCode((c & 63) | 128);}else {utftext += String.fromCharCode((c >> 12) | 224);utftext += String.fromCharCode(((c >> 6) & 63) | 128);utftext += String.fromCharCode((c & 63) | 128);}}return utftext;};var blockstart;var i, j;var W = new Array(80);var H0 = 0x67452301;var H1 = 0xEFCDAB89;var H2 = 0x98BADCFE;var H3 = 0x10325476;var H4 = 0xC3D2E1F0;var A, B, C, D, E;var temp;msg = Utf8Encode(msg);var msg_len = msg.length;var word_array = new Array();for( i=0; i<msg_len-3; i+=4 ) {j = msg.charCodeAt(i)<<24 | msg.charCodeAt(i+1)<<16 | msg.charCodeAt(i+2)<<8 | msg.charCodeAt(i+3);word_array.push( j );}switch( msg_len % 4 ) {case 0:i = 0x080000000;break;case 1:i = msg.charCodeAt(msg_len-1)<<24 | 0x0800000;break;case 2:i = msg.charCodeAt(msg_len-2)<<24 | msg.charCodeAt(msg_len-1)<<16 | 0x08000;break;case 3:i = msg.charCodeAt(msg_len-3)<<24 | msg.charCodeAt(msg_len-2)<<16 | msg.charCodeAt(msg_len-1)<<8	| 0x80;break;}word_array.push( i );while( (word_array.length % 16) != 14 ) word_array.push( 0 );word_array.push( msg_len>>>29 );word_array.push( (msg_len<<3)&0x0ffffffff );for ( blockstart=0; blockstart<word_array.length; blockstart+=16 ){for( i=0; i<16; i++ ) W[i] = word_array[blockstart+i];for( i=16; i<=79; i++ ) W[i] = rotate_left(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);A = H0;B = H1;C = H2;D = H3;E = H4;for( i= 0; i<=19; i++ ){temp = (rotate_left(A,5) + ((B&C) | (~B&D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;E = D;D = C;C = rotate_left(B,30);B = A;A = temp;}for( i=20; i<=39; i++ ){temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;E = D;D = C;C = rotate_left(B,30);B = A;A = temp;}for( i=40; i<=59; i++ ) {temp = (rotate_left(A,5) + ((B&C) | (B&D) | (C&D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;E = D;D = C;C = rotate_left(B,30);B = A;A = temp;}for( i=60; i<=79; i++ ) {temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;E = D;D = C;C = rotate_left(B,30);B = A;A = temp;}H0 = (H0 + A) & 0x0ffffffff;H1 = (H1 + B) & 0x0ffffffff;H2 = (H2 + C) & 0x0ffffffff;H3 = (H3 + D) & 0x0ffffffff;H4 = (H4 + E) & 0x0ffffffff;}var temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);return temp.toLowerCase();}
+//get current year (good for copyright display)
+function curryear(){ var d = new Date(); var n = d.getFullYear(); return n; }
+//uppercase first letter of string
+function ucfLetter(string)
+{
+	//Uppercase first letter in given string.
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+//takes a URL and gets the parameters similar to PHP $_GET
+//returns array of the parameters found to work with via js.
+function url_get_params()
+{
+	// get the current URL
+	var url = window.location.toString();
+	//get the parameters
+	url.match(/\?(.+)$/);
+	var params = RegExp.$1;
+	// split up the query string and store in an
+	// associative array
+	var params = params.split("&");
+	var queryStringList = {};
+
+	var x = 0;
+	for(var i=0;i<params.length;i++)
+	{
+		var tmp = params[i].split("=");
+		queryStringList[tmp[0]] = unescape(tmp[1]);
+		x++;
+	}
+
+	if(x > 0)
+	{
+		queryStringList['howmany'] = x;
+		return queryStringList;
+	}
+	return false;
+}
