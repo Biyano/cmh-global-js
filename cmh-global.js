@@ -266,7 +266,13 @@ if (!Array.prototype.indexOf) {
         return -1;
     }
 }
-
+if (!Object.prototype.hasOwnProperty) {
+	Object.prototype.hasOwnProperty = function(prop)
+	{
+		var proto = obj.__proto__ || obj.constructor.prototype;
+		return (prop in this) && (!(prop in proto) || proto[prop] !== this[prop]);
+	};
+}
 
 //iterates over a form and builds proper JSON output
 //useful if you want to manipulate form data before/after submit
