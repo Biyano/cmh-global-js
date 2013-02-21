@@ -362,10 +362,30 @@ function ucfLetter(string)
 }
 //takes a URL and gets the parameters similar to PHP $_GET
 //returns array of the parameters found to work with via js.
-function url_get_params()
+//recent update allows you to pass true/false for fromURL
+//which will tell the script to use the URL you are currently active on
+//where if false will use a string you provide in the form of a URL
+function url_get_params(fromURL, str)
 {
 	// get the current URL
-	var url = window.location.toString();
+	if(fromURL == true)
+	{
+		var url = window.location.toString();
+	}
+	else
+	{
+		if(nullCheck(str) == true)
+		{
+			alert('Need String');
+			return false;
+		}
+		else
+		{
+			//pass a URL eg:
+			//var url = 'http://chrishacia.com/?foo=abc&bar=123
+			var url = str;
+		}
+	}
 	//get the parameters
 	url.match(/\?(.+)$/);
 	var params = RegExp.$1;
@@ -388,4 +408,16 @@ function url_get_params()
 		return queryStringList;
 	}
 	return false;
+}
+//This function will do the opposite of the above url_get_params function
+//It will convert a JSON object into a query string that you can then append to a URL
+function serialize_to_url(obj, prefix) {
+    var str = [];
+    for(var p in obj) {
+        var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+        str.push(typeof v == "object" ?
+            serialize(v, k) :
+            encodeURIComponent(k) + "=" + encodeURIComponent(v));
+    }
+    return str.join("&");
 }
