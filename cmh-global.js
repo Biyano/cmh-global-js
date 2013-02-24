@@ -165,6 +165,7 @@ function selectOptionByText(selectorName, txt2match) {
     .attr('selected',true);
 }
 //helpful prototypes for reverse compatibility
+//adds .remove() to the array functionality ie: arr.remove('something')
 if (!Array.prototype.remove)
 {
 	Array.prototype.remove = function()
@@ -179,11 +180,13 @@ if (!Array.prototype.remove)
 	    return this;
 	}
 }
+//adds .isArray() to the array functionality ie: arr.isArray()
 if(!Array.isArray) {
   Array.isArray = function (vArg) {
     return Object.prototype.toString.call(vArg) === "[object Array]";
   };
 }
+//add .range() to the array functionality ie: arr.range()
 Array.range = function(start, end, step) {
     var range = [];
     var typeofStart = typeof start;
@@ -266,6 +269,7 @@ if (!Array.prototype.indexOf) {
         return -1;
     }
 }
+//hasOwnProperty not supported by older browsers, this adds the functionality needed to make it work
 if (!Object.prototype.hasOwnProperty) {
 	Object.prototype.hasOwnProperty = function(prop)
 	{
@@ -278,7 +282,6 @@ if (!Object.prototype.hasOwnProperty) {
 //useful if you want to manipulate form data before/after submit
 (function($) {
 $.fn.serializeFormJSON = function() {
-
    var o = {};
    var a = this.serializeArray();
    $.each(a, function() {
