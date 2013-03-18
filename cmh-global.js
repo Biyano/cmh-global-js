@@ -424,3 +424,13 @@ function serialize_to_url(obj, prefix) {
     }
     return str.join("&");
 }
+//quick method to just get the url without query/params
+function getPathFromUrl(url)
+{
+	return url.split("?")[0];
+}
+//same as getPathFromUrl except will remove a hase as well if once is found
+function stripQueryStringAndHashFromPath(url)
+{
+	return url.split("?")[0].split("#")[0];
+}
